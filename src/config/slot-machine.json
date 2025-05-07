@@ -19,33 +19,39 @@
     {
       "id": "seven",
       "symbol": "7️⃣",
-      "value": 100
+      "value": 100,
+      "image": "/symbols/seven.png"
     },
     {
       "id": "cherry",
       "symbol": "🍒",
-      "value": 5
+      "value": 5,
+      "image": "/symbols/cherry.png"
     },
     {
       "id": "lemon",
       "symbol": "🍋",
-      "value": 30
+      "value": 30,
+      "image": "/symbols/lemon.png"
     },
     {
       "id": "orange",
       "symbol": "🍊",
-      "value": 20
+      "value": 20,
+      "image": "/symbols/orange.png"
     },
     {
       "id": "grape",
       "symbol": "🍇",
-      "value": 50
+      "value": 50,
+      "image": "/symbols/grape.png"
     },
     {
       "id": "freespin",
       "symbol": "⭐",
       "value": 0,
-      "isSpecial": true
+      "isSpecial": true,
+      "image": "/symbols/freespin.png"
     }
   ],
   "animation": {

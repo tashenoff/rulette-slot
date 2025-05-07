@@ -12,6 +12,7 @@ interface Symbol {
   id: string;
   symbol: string;
   value: number;
+  image?: string;
 }
 
 interface WinResult {
@@ -392,6 +393,15 @@ export default function SlotMachine() {
       return;
     }
 
+    // Проверяем 5 совпадений (максимальный выигрыш)
+    const centerMatchResult = checkCenterMatch(finalSymbols);
+    if (centerMatchResult) {
+      updateBalance(centerMatchResult.amount);
+      setLastWin(centerMatchResult);
+      setIsSpinning(false);
+      return;
+    }
+
     // Если нет 5 совпадений, проверяем на 4 совпадения
     const fourMatchResult = checkFourMatch(finalSymbols);
     if (fourMatchResult.hasMatch) {
@@ -634,7 +644,9 @@ export default function SlotMachine() {
                                                                      (reelIndex === 3 && symbolIndex === 0)))
                               ? 'consolation win-animation' : '' : ''}`}
                         >
-                          {symbol.symbol}
+                          {symbol.image
+                            ? <img src={symbol.image} alt={symbol.id} className="w-16 h-16 object-contain" />
+                            : symbol.symbol}
                         </div>
                       ))}
                     </div>
