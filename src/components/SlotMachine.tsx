@@ -606,7 +606,7 @@ export default function SlotMachine() {
               <div className="flex justify-center mb-4">
                 <Jackpot />
               </div>
-              <div className="flex gap-4 mb-8 p-4 bg-yellow-800 rounded-lg justify-center">
+              <div className="flex gap-4 mb-8 p-4 bg-black rounded-lg justify-center">
                 {reels.map((reel, reelIndex) => (
                   <div 
                     key={reelIndex} 
