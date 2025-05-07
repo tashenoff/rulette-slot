@@ -47,6 +47,8 @@ export default function SlotMachine() {
     activateFreeSpins
   } = useGameStore();
   const [showRules, setShowRules] = useState(false);
+  const [isAutoSpin, setIsAutoSpin] = useState(false);
+  const autoSpinTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Генерируем начальные символы при загрузке
@@ -56,6 +58,30 @@ export default function SlotMachine() {
     setReels(initialReels);
     nextSymbolsRef.current = initialReels;
   }, []);
+
+  useEffect(() => {
+    if (isAutoSpin && !isSpinning && balance >= bet) {
+      if (hasFourMatch) {
+        autoSpinTimeout.current = setTimeout(() => {
+          spinLastReel();
+        }, 1200);
+      } else {
+        autoSpinTimeout.current = setTimeout(() => {
+          spin();
+        }, 1200);
+      }
+    }
+    if (!isAutoSpin && autoSpinTimeout.current) {
+      clearTimeout(autoSpinTimeout.current);
+      autoSpinTimeout.current = null;
+    }
+    return () => {
+      if (autoSpinTimeout.current) {
+        clearTimeout(autoSpinTimeout.current);
+        autoSpinTimeout.current = null;
+      }
+    };
+  }, [isAutoSpin, isSpinning, balance, bet, hasFourMatch]);
 
   const getRandomSymbols = (count: number): Symbol[] => {
     return Array(count)
@@ -616,25 +642,38 @@ export default function SlotMachine() {
                 ))}
               </div>
               
-              <button
-                onClick={hasFourMatch ? spinLastReel : spin}
-                disabled={isSpinning || (!hasFourMatch && balance < bet)}
-                className={`w-full py-4 px-8 text-xl font-bold rounded-lg transition-all ${
-                  isSpinning || (!hasFourMatch && balance < bet)
-                    ? 'bg-gray-500 cursor-not-allowed'
-                    : hasFourMatch
-                    ? 'bg-yellow-400 hover:bg-yellow-500 active:transform active:scale-95'
-                    : 'bg-yellow-500 hover:bg-yellow-600 active:transform active:scale-95'
-                }`}
-              >
-                {isSpinning 
-                  ? 'Вращается...' 
-                  : hasFourMatch 
-                  ? 'Крутить пятый барабан!' 
-                  : balance < bet 
-                  ? 'Недостаточно средств' 
-                  : 'Крутить!'}
-              </button>
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={hasFourMatch ? spinLastReel : spin}
+                  disabled={isSpinning || (!hasFourMatch && balance < bet)}
+                  className={`w-full py-4 px-8 text-xl font-bold rounded-lg transition-all ${
+                    isSpinning || (!hasFourMatch && balance < bet)
+                      ? 'bg-gray-500 cursor-not-allowed'
+                      : hasFourMatch
+                      ? 'bg-yellow-400 hover:bg-yellow-500 active:transform active:scale-95'
+                      : 'bg-yellow-500 hover:bg-yellow-600 active:transform active:scale-95'
+                  }`}
+                >
+                  {isSpinning 
+                    ? 'Вращается...' 
+                    : hasFourMatch 
+                    ? 'Крутить пятый барабан!' 
+                    : balance < bet 
+                    ? 'Недостаточно средств' 
+                    : 'Крутить!'}
+                </button>
+                <button
+                  onClick={() => setIsAutoSpin((prev) => !prev)}
+                  disabled={isSpinning || hasFourMatch || balance < bet}
+                  className={`py-4 px-6 text-xl font-bold rounded-lg transition-all ${
+                    isAutoSpin
+                      ? 'bg-green-600 hover:bg-green-700 text-white'
+                      : 'bg-gray-300 hover:bg-gray-400 text-black'
+                  }`}
+                >
+                  {isAutoSpin ? 'Стоп авто-спин' : 'Авто-спин'}
+                </button>
+              </div>
 
               <button
                 onClick={activateFreeSpins}
