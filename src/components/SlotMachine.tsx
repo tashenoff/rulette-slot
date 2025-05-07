@@ -50,6 +50,10 @@ export default function SlotMachine() {
   const [showRules, setShowRules] = useState(false);
   const [isAutoSpin, setIsAutoSpin] = useState(false);
   const autoSpinTimeout = useRef<NodeJS.Timeout | null>(null);
+  const spinSound = useRef<HTMLAudioElement | null>(null);
+  const winSound = useRef<HTMLAudioElement | null>(null);
+  const fourSound = useRef<HTMLAudioElement | null>(null);
+  const spinLoopSound = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Генерируем начальные символы при загрузке
@@ -83,6 +87,14 @@ export default function SlotMachine() {
       }
     };
   }, [isAutoSpin, isSpinning, balance, bet, hasFourMatch]);
+
+  useEffect(() => {
+    spinSound.current = new Audio('/sounds/spin.mp3');
+    winSound.current = new Audio('/sounds/win.mp3');
+    fourSound.current = new Audio('/sounds/four.mp3');
+    spinLoopSound.current = new Audio('/sounds/spin_loop.mp3');
+    spinLoopSound.current.loop = true;
+  }, []);
 
   const getRandomSymbols = (count: number): Symbol[] => {
     return Array(count)
@@ -253,6 +265,10 @@ export default function SlotMachine() {
   const spinLastReel = async () => {
     if (isSpinning) return;
     
+    // Воспроизводим звук вращения
+    spinSound.current?.play();
+    // Воспроизводим длинный звук вращения
+    spinLoopSound.current?.play();
     setIsSpinning(true);
     setLastWin(null);
 
@@ -285,7 +301,14 @@ export default function SlotMachine() {
       setFreeSpins(slotConfig.gameSettings.freeSpins.count);
       setHasFourMatch(false);
       setMatchedRows([]);
+      // Останавливаем длинный звук вращения
+      if (spinLoopSound.current) {
+        spinLoopSound.current.pause();
+        spinLoopSound.current.currentTime = 0;
+      }
       setIsSpinning(false);
+      // Воспроизводим звук выигрыша
+      winSound.current?.play();
       return;
     }
 
@@ -301,7 +324,14 @@ export default function SlotMachine() {
       setLastWin(centerMatchResult);
       setHasFourMatch(false);
       setMatchedRows([]);
+      // Останавливаем длинный звук вращения
+      if (spinLoopSound.current) {
+        spinLoopSound.current.pause();
+        spinLoopSound.current.currentTime = 0;
+      }
       setIsSpinning(false);
+      // Воспроизводим звук выигрыша
+      winSound.current?.play();
       return;
     }
 
@@ -348,6 +378,11 @@ export default function SlotMachine() {
 
     setHasFourMatch(false);
     setMatchedRows([]);
+    // Останавливаем длинный звук вращения
+    if (spinLoopSound.current) {
+      spinLoopSound.current.pause();
+      spinLoopSound.current.currentTime = 0;
+    }
     setIsSpinning(false);
   };
 
@@ -361,6 +396,11 @@ export default function SlotMachine() {
       return;
     }
     
+    // Воспроизводим звук запуска
+    spinSound.current?.play();
+    // Воспроизводим длинный звук вращения
+    spinLoopSound.current?.play();
+
     setLastWin(null);
     if (!isFreeSpin) {
       updateBalance(-bet);
@@ -389,7 +429,14 @@ export default function SlotMachine() {
     if (freeSpinsResult) {
       setLastWin(freeSpinsResult);
       setFreeSpins(slotConfig.gameSettings.freeSpins.count);
+      // Останавливаем длинный звук вращения
+      if (spinLoopSound.current) {
+        spinLoopSound.current.pause();
+        spinLoopSound.current.currentTime = 0;
+      }
       setIsSpinning(false);
+      // Воспроизводим звук выигрыша
+      winSound.current?.play();
       return;
     }
 
@@ -398,7 +445,14 @@ export default function SlotMachine() {
     if (centerMatchResult) {
       updateBalance(centerMatchResult.amount);
       setLastWin(centerMatchResult);
+      // Останавливаем длинный звук вращения
+      if (spinLoopSound.current) {
+        spinLoopSound.current.pause();
+        spinLoopSound.current.currentTime = 0;
+      }
       setIsSpinning(false);
+      // Воспроизводим звук выигрыша
+      winSound.current?.play();
       return;
     }
 
@@ -424,6 +478,13 @@ export default function SlotMachine() {
         matchedRows: fourMatchResult.rows,
         isFreeSpin: false
       });
+      // Останавливаем длинный звук вращения
+      if (spinLoopSound.current) {
+        spinLoopSound.current.pause();
+        spinLoopSound.current.currentTime = 0;
+      }
+      // Воспроизводим звук 4 совпадения
+      fourSound.current?.play();
       setIsSpinning(false);
       return;
     }
@@ -431,7 +492,11 @@ export default function SlotMachine() {
     if (isFreeSpin) {
       decrementFreeSpins();
     }
-    
+    // Останавливаем длинный звук вращения
+    if (spinLoopSound.current) {
+      spinLoopSound.current.pause();
+      spinLoopSound.current.currentTime = 0;
+    }
     setIsSpinning(false);
   };
 
@@ -496,6 +561,8 @@ export default function SlotMachine() {
           background: white;
           border-radius: 0.5rem;
           overflow: hidden;
+          padding: 0;
+          margin: 0;
         }
         .reel::before {
           content: '';
@@ -525,9 +592,13 @@ export default function SlotMachine() {
           inset: 0;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: stretch;
+          justify-content: flex-start;
           transform: translateY(0);
           will-change: transform;
+          padding: 0;
+          margin: 0;
+          height: 100%;
         }
         
         .spinning {
@@ -545,6 +616,25 @@ export default function SlotMachine() {
         .matched-four {
           background: rgba(255, 215, 0, 0.3);
           border: 2px solid gold;
+        }
+
+        .symbol-cell {
+          width: 100%;
+          height: ${slotConfig.animation.symbolHeight}px;
+          display: flex;
+          align-items: stretch;
+          justify-content: stretch;
+          padding: 0;
+          margin: 0;
+        }
+        .symbol-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          margin: 0;
+          padding: 0;
+          display: block;
+          background: transparent;
         }
 
         .modal-bg {
@@ -629,7 +719,7 @@ export default function SlotMachine() {
                       {reel.map((symbol, symbolIndex) => (
                         <div
                           key={`${reelIndex}-${symbolIndex}`}
-                          className={`w-20 h-24 flex items-center justify-center text-5xl shrink-0 
+                          className={`symbol-cell w-20 h-24 flex items-center justify-center text-5xl shrink-0 
                             ${!isSpinning && lastWin && !lastWin.isConsolation && symbolIndex === (lastWin.position ?? 1) ? 'win-animation' : ''}
                             ${hasFourMatch && matchedRows.includes(symbolIndex) ? 'matched-row' : ''}
                             ${!isSpinning && lastWin && lastWin.isConsolation ? 
@@ -645,7 +735,7 @@ export default function SlotMachine() {
                               ? 'consolation win-animation' : '' : ''}`}
                         >
                           {symbol.image
-                            ? <img src={symbol.image} alt={symbol.id} className="w-16 h-16 object-contain" />
+                            ? <img src={symbol.image} alt={symbol.id} className="symbol-img" />
                             : symbol.symbol}
                         </div>
                       ))}
