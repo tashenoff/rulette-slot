@@ -1,0 +1,80 @@
+{
+  "gameSettings": {
+    "initialBalance": 1000000,
+    "initialJackpot": 1000000,
+    "jackpotContribution": 0.1,
+    "consolationPrize": 0.2,
+    "freeSpins": {
+      "count": 10,
+      "multiplier": 2
+    },
+    "bets": {
+      "min": 50000,
+      "max": 200000,
+      "steps": [50000, 100000, 150000, 200000]
+    }
+  },
+  "reels": 5,
+  "symbols": [
+    {
+      "id": "seven",
+      "symbol": "7️⃣",
+      "value": 100
+    },
+    {
+      "id": "cherry",
+      "symbol": "🍒",
+      "value": 5
+    },
+    {
+      "id": "lemon",
+      "symbol": "🍋",
+      "value": 30
+    },
+    {
+      "id": "orange",
+      "symbol": "🍊",
+      "value": 20
+    },
+    {
+      "id": "grape",
+      "symbol": "🍇",
+      "value": 50
+    },
+    {
+      "id": "freespin",
+      "symbol": "⭐",
+      "value": 0,
+      "isSpecial": true
+    }
+  ],
+  "animation": {
+    "duration": 2000,
+    "spins": 1,
+    "delayBetweenReels": 200,
+    "symbolHeight": 96
+  },
+  "paylines": [
+    {
+      "name": "Джекпот - Пять семерок!",
+      "combination": ["seven", "seven", "seven", "seven", "seven"],
+      "multiplier": 100,
+      "isJackpot": true
+    },
+    {
+      "name": "Большой выигрыш - Пять винограда!",
+      "combination": ["grape", "grape", "grape", "grape", "grape"],
+      "multiplier": 50
+    },
+    {
+      "name": "Средний выигрыш - Пять лимонов!",
+      "combination": ["lemon", "lemon", "lemon", "lemon", "lemon"],
+      "multiplier": 30
+    },
+    {
+      "name": "Малый выигрыш - Пять апельсинов!",
+      "combination": ["orange", "orange", "orange", "orange", "orange"],
+      "multiplier": 20
+    }
+  ]
+} 
